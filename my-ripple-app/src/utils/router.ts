@@ -94,7 +94,7 @@ class Router {
    * Update the current route
    */
   private updateRoute(path: string): void {
-    @this.currentRoute = path;
+    this.currentRoute.value = path;
     
     // Update document title if route has meta.title
     const route = this.getRoute(path);
@@ -110,7 +110,7 @@ class Router {
    * Get the current route as a reactive value
    */
   getRoute(path?: string): Route | undefined {
-    const routePath = path || @this.currentRoute;
+    const routePath = path || this.currentRoute.value;
     
     // Try exact match first
     if (this.routes.has(routePath)) {
@@ -184,14 +184,14 @@ class Router {
    * Check if current route matches a path
    */
   isActive(path: string): boolean {
-    return @this.currentRoute === path;
+    return this.currentRoute.value === path;
   }
 
   /**
    * Check if current route starts with a path (for nested routes)
    */
   isActivePrefix(prefix: string): boolean {
-    return @this.currentRoute.startsWith(prefix);
+    return this.currentRoute.value.startsWith(prefix);
   }
 }
 

@@ -1,60 +1,362 @@
-import { track } from 'ripple';
+import { track, effect } from 'ripple';
+import { useRouter, useCurrentRoute } from './utils/router';
+import { initAuth } from './utils/auth.service';
+import { initSubscription } from './utils/subscription.service';
+import { useAuth } from './utils/auth.context';
+import { supabase } from './utils/supabase';
+// @ts-expect-error: Ripple component import
+import { Dashboard } from './pages/Dashboard.ripple';
+// @ts-expect-error: Ripple component import
+import { Organise } from './pages/Organise.ripple';
+// @ts-expect-error: Ripple component import
+import { ConvertToPDF } from './pages/ConvertToPDF.ripple';
+// @ts-expect-error: Ripple component import
+import { ConvertFromPDF } from './pages/ConvertFromPDF.ripple';
+// @ts-expect-error: Ripple component import
+import { SignAndSecurity } from './pages/SignAndSecurity.ripple';
+// @ts-expect-error: Ripple component import
+import { ViewAndEdit } from './pages/ViewAndEdit.ripple';
+// @ts-expect-error: Ripple component import
+import { Advanced } from './pages/Advanced.ripple';
+// @ts-expect-error: Ripple component import
+import { SignIn } from './components/Auth/SignIn.ripple';
+// @ts-expect-error: Ripple component import
+import { SignUp } from './components/Auth/SignUp.ripple';
 
 export component App() {
-	<div class='container'>
-		<h1>{'Welcome to Ripple!'}</h1>
-		<div class='counter'>
-			let count = track(0);
+  // Initialise authentication and subscription services
+  initAuth();
+  initSubscription();
 
-			<button onClick={() => @count--}>{'-'}</button>
-			<span class='count'>{@count}</span>
-			<button onClick={() => @count++}>{'+'}</button>
-		</div>
-		<div>
-			<p>{'This is a basic Ripple application template.'}</p>
-			<p>
-				{'Edit '}
-				<code>{'src/App.ripple'}</code>
-				{' to get started.'}
-			</p>
-		</div>
-	</div>
+  const router = useRouter();
+  const currentRoute = useCurrentRoute();
+  const auth = useAuth();
+
+  // Track which page to show - default to dashboard (public landing page)
+  let showPage = track('dashboard');
+
+  // Track display name and auth visibility
+  let displayName = track('Account');
+  let showAuthButtons = track(false);
+  let showSignInButton = track(true);
+
+  // Counter for forcing re-renders
+  let renderCounter = 0;
+  let renderKey = track(0);
+
+  // Listen to Supabase auth state changes and update display name
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state change in App:', event, session);
+
+    if (session?.user) {
+      const user = session.user;
+      let newName = 'Account';
+
+      if (user.user_metadata?.name) {
+        newName = user.user_metadata.name;
+        console.log('Setting displayName to:', user.user_metadata.name);
+      } else if (user.email) {
+        const emailParts = user.email.split('@');
+        newName = emailParts[0] || 'Account';
+        console.log('Setting displayName to email username:', emailParts[0]);
+      }
+
+      displayName.value = newName;
+      showAuthButtons.value = true;
+      showSignInButton.value = false;
+      renderCounter++;
+      renderKey.value = renderCounter;
+
+      console.log('displayName.value is now:', displayName.value);
+      console.log('showAuthButtons.value is now:', showAuthButtons.value);
+      console.log('renderKey.value is now:', renderKey.value);
+
+      // WORKAROUND: Directly update DOM since Ripple reactivity is broken
+      setTimeout(() => {
+        const userNameBtn = document.querySelector('.user-name');
+        const signOutBtn = document.querySelector('.nav-link:not(.user-name):not(.sign-in)');
+        const signInBtn = document.querySelector('.sign-in');
+        const authButtons = document.querySelectorAll('.nav-link:not(.user-name):not(.sign-in):not([class*="sign"])');
+
+        if (userNameBtn) {
+          userNameBtn.textContent = newName;
+          userNameBtn.style.display = '';
+        }
+        if (signOutBtn) signOutBtn.style.display = '';
+        if (signInBtn) signInBtn.style.display = 'none';
+        authButtons.forEach(btn => btn.style.display = '');
+
+        console.log('DOM updated directly');
+      }, 100);
+    } else {
+      displayName.value = 'Account';
+      showAuthButtons.value = false;
+      showSignInButton.value = true;
+      renderCounter++;
+      renderKey.value = renderCounter;
+      console.log('User signed out, reset to Account');
+
+      // WORKAROUND: Directly update DOM
+      setTimeout(() => {
+        const userNameBtn = document.querySelector('.user-name');
+        const signOutBtn = document.querySelector('.nav-link:not(.user-name):not(.sign-in)');
+        const signInBtn = document.querySelector('.sign-in');
+        const authButtons = document.querySelectorAll('.nav-link:not(.user-name):not(.sign-in):not([class*="sign"])');
+
+        if (userNameBtn) {
+          userNameBtn.textContent = 'Account';
+          userNameBtn.style.display = 'none';
+        }
+        if (signOutBtn) signOutBtn.style.display = 'none';
+        if (signInBtn) signInBtn.style.display = '';
+        authButtons.forEach(btn => btn.style.display = 'none');
+
+        console.log('DOM reset directly');
+      }, 100);
+    }
+  });
+
+  // Watch auth state for navigation
+  effect(() => {
+    const isLoading = @auth.isLoading;
+    const isAuthenticated = @auth.isAuthenticated;
+
+    console.log('Auth effect:', { isLoading, isAuthenticated });
+
+    // Only handle navigation after loading is complete
+    if (!isLoading && isAuthenticated) {
+      // User is authenticated - show dashboard if on signin/signup
+      if (@showPage === 'signin' || @showPage === 'signup') {
+        @showPage = 'dashboard';
+        router.navigate('/');
+      }
+    }
+  });
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    console.log('handleSignOut called - user clicked to sign out');
+    const { supabase } = await import('./utils/supabase');
+    await supabase.auth.signOut();
+    @showPage = 'signin';
+    router.navigate('/signin');
+  };
+
+  <div class='app-container'>
+    <nav class='simple-nav'>
+      <div class='nav-logo' onClick={() => router.navigate('/')}>
+        <span class='logo-snack'>{'Snack'}</span>
+        <span class='logo-pdf'>{'PDF'}</span>
+      </div>
+      <div class='nav-links' key={@renderKey}>
+        <button class={@showPage === 'dashboard' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'dashboard'; router.navigate('/'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Dashboard'}
+        </button>
+        <button class={@showPage === 'organise' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'organise'; router.navigate('/organise'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Organise'}
+        </button>
+        <button class={@showPage === 'convert-to-pdf' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'convert-to-pdf'; router.navigate('/convert-to-pdf'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Convert to PDF'}
+        </button>
+        <button class={@showPage === 'convert-from-pdf' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'convert-from-pdf'; router.navigate('/convert-from-pdf'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Convert from PDF'}
+        </button>
+        <button class={@showPage === 'sign-security' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'sign-security'; router.navigate('/sign-security'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Sign & Security'}
+        </button>
+        <button class={@showPage === 'view-edit' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'view-edit'; router.navigate('/view-edit'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'View & Edit'}
+        </button>
+        <button class={@showPage === 'advanced' ? 'nav-link active' : 'nav-link'} onClick={() => { @showPage = 'advanced'; router.navigate('/advanced'); }} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Advanced'}
+        </button>
+        <button class='nav-link user-name' style={@showAuthButtons ? 'pointer-events: none;' : 'display: none;'}>
+          {@displayName}
+        </button>
+        <button class='nav-link' onClick={handleSignOut} style={@showAuthButtons ? '' : 'display: none;'}>
+          {'Sign Out'}
+        </button>
+        <button class='nav-link sign-in' onClick={() => { @showPage = 'signin'; router.navigate('/signin'); }} style={@showSignInButton ? '' : 'display: none;'}>
+          {'Sign In'}
+        </button>
+      </div>
+    </nav>
+
+    <main class='main-content'>
+      if (@showPage === 'signin') {
+        <SignIn />
+      } else if (@showPage === 'signup') {
+        <SignUp />
+      } else if (@showPage === 'organise') {
+        <Organise />
+      } else if (@showPage === 'convert-to-pdf') {
+        <ConvertToPDF />
+      } else if (@showPage === 'convert-from-pdf') {
+        <ConvertFromPDF />
+      } else if (@showPage === 'sign-security') {
+        <SignAndSecurity />
+      } else if (@showPage === 'view-edit') {
+        <ViewAndEdit />
+      } else if (@showPage === 'advanced') {
+        <Advanced />
+      } else {
+        <Dashboard />
+      }
+    </main>
+
+    <footer class='simple-footer'>
+      <p>{'© 2025 SnackPDF. All rights reserved.'}</p>
+    </footer>
+  </div>
 
   <style>
-    .container {
-      text-align: center;
-      font-family: "Arial", sans-serif;
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    p {
-      margin: 12px 0;
-      font-family: "Arial", sans-serif;
+    .simple-nav {
+      background-color: #333333;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    code {
-      background: #f4f4f4;
-      padding: 2px 6px;
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo-snack {
+      color: #ffffff;
+    }
+
+    .logo-pdf {
+      color: #ffffff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      flex: 1;
+    }
+
+    .nav-link {
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
       border-radius: 4px;
-      font-family: "Courier New", monospace;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-link.active {
+      background-color: #238287;
+      color: #ffffff;
+    }
+
+    .nav-link.user-name {
+      margin-left: auto;
+      background-color: transparent;
+      border: 1px solid #e0e0e0;
+    }
+
+    .nav-link.user-name:hover {
+      background-color: #f5f5f5;
       color: #333;
     }
 
-    button {
-      font-size: 1.5em;
-      padding: 6px 12px;
-      margin: 0 6px;
-      cursor: pointer;
-      border: none;
-      font-family: "Courier New", monospace;
+    .nav-link.sign-in {
+      margin-left: auto;
     }
 
-    button:hover {
-      background-color: #e0e0e0;
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
     }
 
-    .count {
-      margin: 0 12px;
-      font-size: 1.5em;
+    .simple-footer {
+      background-color: #333333;
+      color: #ffffff;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: auto;
     }
+
+    .simple-footer p {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #333;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .page-description {
+      font-size: 1.125rem;
+      color: #666;
+      margin: 0;
+    }
+
+    .coming-soon-card {
+      background: white;
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .coming-soon-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      gap: 1rem;
+    }
+
+    .spinner-large {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #f3f3f3;
+      border-top-color: #238287;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
   </style>
 }

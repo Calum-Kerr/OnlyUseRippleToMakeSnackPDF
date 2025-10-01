@@ -24,16 +24,16 @@ export function initAuth() {
         createdAt: session.user.created_at,
       };
 
-      @auth.user = user;
-      @auth.isAuthenticated = true;
-      @auth.error = null;
+      auth.user.value = user;
+      auth.isAuthenticated.value = true;
+      auth.error.value = null;
     } else {
       // User is signed out
-      @auth.user = null;
-      @auth.isAuthenticated = false;
+      auth.user.value = null;
+      auth.isAuthenticated.value = false;
     }
 
-    @auth.isLoading = false;
+    auth.isLoading.value = false;
   });
 
   // Check for existing session on init
@@ -47,11 +47,11 @@ export function initAuth() {
         createdAt: session.user.created_at,
       };
 
-      @auth.user = user;
-      @auth.isAuthenticated = true;
+      auth.user.value = user;
+      auth.isAuthenticated.value = true;
     }
 
-    @auth.isLoading = false;
+    auth.isLoading.value = false;
   });
 
   // Return cleanup function
@@ -70,18 +70,18 @@ export async function signOut(): Promise<{ error: Error | null }> {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      @auth.error = error.message;
+      auth.error.value = error.message;
       return { error };
     }
 
-    @auth.user = null;
-    @auth.isAuthenticated = false;
-    @auth.error = null;
+    auth.user.value = null;
+    auth.isAuthenticated.value = false;
+    auth.error.value = null;
 
     return { error: null };
   } catch (err) {
     const error = err as Error;
-    @auth.error = error.message;
+    auth.error.value = error.message;
     return { error };
   }
 }
@@ -91,7 +91,7 @@ export async function signOut(): Promise<{ error: Error | null }> {
  */
 export function getCurrentUser() {
   const auth = AuthContext.get();
-  return @auth.user;
+  return auth.user.value;
 }
 
 /**
@@ -99,7 +99,7 @@ export function getCurrentUser() {
  */
 export function isAuthenticated(): boolean {
   const auth = AuthContext.get();
-  return @auth.isAuthenticated;
+  return auth.isAuthenticated.value;
 }
 
 /**
@@ -107,6 +107,6 @@ export function isAuthenticated(): boolean {
  */
 export function isAuthLoading(): boolean {
   const auth = AuthContext.get();
-  return @auth.isLoading;
+  return auth.isLoading.value;
 }
 

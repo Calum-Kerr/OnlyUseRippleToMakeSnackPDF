@@ -14,18 +14,18 @@ export function initSubscription() {
 
   // Watch for auth changes and fetch subscription
   effect(() => {
-    const user = @authCtx.user;
-    const isAuthenticated = @authCtx.isAuthenticated;
+    const user = authCtx.user;
+    const isAuthenticated = authCtx.isAuthenticated;
 
     if (isAuthenticated && user) {
       // User is authenticated, fetch their subscription
       fetchSubscription(user.id);
     } else {
       // User is not authenticated, clear subscription
-      @subscriptionCtx.subscription = null;
-      @subscriptionCtx.isSubscribed = false;
-      @subscriptionCtx.isLoading = false;
-      @subscriptionCtx.error = null;
+      subscriptionCtx.subscription = null;
+      subscriptionCtx.isSubscribed = false;
+      subscriptionCtx.isLoading = false;
+      subscriptionCtx.error = null;
     }
   });
 }
@@ -36,8 +36,8 @@ export function initSubscription() {
 async function fetchSubscription(userId: string) {
   const subscriptionCtx = SubscriptionContext.get();
   
-  @subscriptionCtx.isLoading = true;
-  @subscriptionCtx.error = null;
+  subscriptionCtx.isLoading = true;
+  subscriptionCtx.error = null;
 
   try {
     const { data, error } = await supabase
@@ -49,8 +49,8 @@ async function fetchSubscription(userId: string) {
     if (error) {
       // No subscription found is not an error
       if (error.code === 'PGRST116') {
-        @subscriptionCtx.subscription = null;
-        @subscriptionCtx.isSubscribed = false;
+        subscriptionCtx.subscription = null;
+        subscriptionCtx.isSubscribed = false;
       } else {
         throw error;
       }
@@ -67,14 +67,14 @@ async function fetchSubscription(userId: string) {
         updatedAt: data.updated_at,
       };
 
-      @subscriptionCtx.subscription = subscription;
-      @subscriptionCtx.isSubscribed = isSubscriptionActive(subscription);
+      subscriptionCtx.subscription = subscription;
+      subscriptionCtx.isSubscribed = isSubscriptionActive(subscription);
     }
   } catch (err) {
     console.error('Error fetching subscription:', err);
-    @subscriptionCtx.error = 'Failed to load subscription status';
+    subscriptionCtx.error = 'Failed to load subscription status';
   } finally {
-    @subscriptionCtx.isLoading = false;
+    subscriptionCtx.isLoading = false;
   }
 }
 
@@ -93,7 +93,7 @@ function isSubscriptionActive(subscription: Subscription | null): boolean {
  */
 export function getCurrentSubscription(): Subscription | null {
   const subscriptionCtx = SubscriptionContext.get();
-  return @subscriptionCtx.subscription;
+  return subscriptionCtx.subscription;
 }
 
 /**
@@ -101,7 +101,7 @@ export function getCurrentSubscription(): Subscription | null {
  */
 export function isSubscribed(): boolean {
   const subscriptionCtx = SubscriptionContext.get();
-  return @subscriptionCtx.isSubscribed;
+  return subscriptionCtx.isSubscribed;
 }
 
 /**
@@ -109,7 +109,7 @@ export function isSubscribed(): boolean {
  */
 export function isSubscriptionLoading(): boolean {
   const subscriptionCtx = SubscriptionContext.get();
-  return @subscriptionCtx.isLoading;
+  return subscriptionCtx.isLoading;
 }
 
 /**
@@ -117,7 +117,7 @@ export function isSubscriptionLoading(): boolean {
  */
 export async function refreshSubscription() {
   const authCtx = AuthContext.get();
-  const user = @authCtx.user;
+  const user = authCtx.user;
   
   if (user) {
     await fetchSubscription(user.id);
@@ -129,7 +129,7 @@ export async function refreshSubscription() {
  */
 export async function getUserFileSizeLimit(): Promise<number> {
   const authCtx = AuthContext.get();
-  const user = @authCtx.user;
+  const user = authCtx.user;
 
   if (!user) {
     return 1.0; // Default 1MB for non-authenticated users
@@ -159,7 +159,7 @@ export async function getUserFileSizeLimit(): Promise<number> {
  */
 export async function canUploadFile(fileSizeMB: number): Promise<boolean> {
   const authCtx = AuthContext.get();
-  const user = @authCtx.user;
+  const user = authCtx.user;
 
   if (!user) {
     return fileSizeMB <= 1.0; // Non-authenticated users limited to 1MB
