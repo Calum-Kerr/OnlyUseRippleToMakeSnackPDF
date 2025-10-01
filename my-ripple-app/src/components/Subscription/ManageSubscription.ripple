@@ -1,0 +1,239 @@
+import { track } from 'ripple';
+import { useSubscription } from '../../utils/subscription.context';
+import { supabase } from '../../utils/supabase';
+import { handleApiError } from '../../utils/helpers';
+
+export component ManageSubscription() {
+  const subscription = useSubscription();
+  
+  let isLoading = track(false);
+  let error = track<string | null>(null);
+  let showCancelConfirm = track(false);
+
+  const handleCancelSubscription = async () => {
+    @error = null;
+    @isLoading = true;
+
+    try {
+      // TODO: Call your backend/serverless function to cancel subscription
+      // This requires Stripe secret key, so must be done server-side
+      
+      // Example of what the backend call would look like:
+      // const response = await fetch('/api/cancel-subscription', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     subscriptionId: @subscription.subscription?.id,
+      //   }),
+      // });
+      // const result = await response.json();
+      
+      @error = 'Subscription management requires a backend endpoint. Please see STRIPE_SETUP.md for implementation details.';
+      @showCancelConfirm = false;
+      
+    } catch (err) {
+      @error = handleApiError(err);
+    } finally {
+      @isLoading = false;
+    }
+  };
+
+  const openCustomerPortal = async () => {
+    @error = null;
+    @isLoading = true;
+
+    try {
+      // TODO: Call your backend/serverless function to create customer portal session
+      // This requires Stripe secret key, so must be done server-side
+      
+      // Example of what the backend call would look like:
+      // const response = await fetch('/api/create-portal-session', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      // });
+      // const { url } = await response.json();
+      // window.location.href = url;
+      
+      @error = 'Customer portal requires a backend endpoint. Please see STRIPE_SETUP.md for implementation details.';
+      
+    } catch (err) {
+      @error = handleApiError(err);
+    } finally {
+      @isLoading = false;
+    }
+  };
+
+  if (!@subscription.isSubscribed) {
+    <div class="manage-subscription-container">
+      <p class="no-subscription-text">
+        {'You don\'t have an active subscription.'}
+      </p>
+    </div>
+  } else {
+    <div class="manage-subscription-container">
+      <div class="manage-card">
+        <h3 class="manage-title">{'Manage your subscription'}</h3>
+
+        if (@error) {
+          <div class="alert alert-error">
+            {@error}
+          </div>
+        }
+
+        <div class="manage-actions">
+          <button
+            class="btn btn-secondary"
+            onClick={openCustomerPortal}
+            disabled={@isLoading}
+          >
+            if (@isLoading) {
+              <span class="spinner"></span>
+              {'Loading...'}
+            } else {
+              {'Update payment method'}
+            }
+          </button>
+
+          if (!@showCancelConfirm) {
+            <button
+              class="btn btn-danger"
+              onClick={() => @showCancelConfirm = true}
+              disabled={@isLoading}
+            >
+              {'Cancel subscription'}
+            </button>
+          } else {
+            <div class="cancel-confirm">
+              <p class="cancel-warning">
+                {'Are you sure you want to cancel? You\'ll lose access to unlimited file uploads.'}
+              </p>
+              <div class="cancel-actions">
+                <button
+                  class="btn btn-danger"
+                  onClick={handleCancelSubscription}
+                  disabled={@isLoading}
+                >
+                  if (@isLoading) {
+                    <span class="spinner"></span>
+                    {'Cancelling...'}
+                  } else {
+                    {'Yes, cancel'}
+                  }
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  onClick={() => @showCancelConfirm = false}
+                  disabled={@isLoading}
+                >
+                  {'Keep subscription'}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="manage-info">
+          <p class="info-text">
+            {'You can also manage your subscription, view invoices, and update payment details through the Stripe Customer Portal.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <style>
+    .manage-subscription-container {
+      width: 100%;
+    }
+
+    .no-subscription-text {
+      text-align: center;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-base);
+      padding: var(--spacing-xl);
+    }
+
+    .manage-card {
+      background-color: var(--brand-white);
+      border: 1px solid var(--color-border-medium);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .manage-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--spacing-lg) 0;
+    }
+
+    .alert {
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .alert-error {
+      background-color: #fee;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
+    }
+
+    .manage-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .btn-danger {
+      background-color: var(--color-error);
+      color: var(--brand-white);
+      border: none;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background-color: #c82333;
+    }
+
+    .cancel-confirm {
+      padding: var(--spacing-md);
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: var(--radius-md);
+    }
+
+    .cancel-warning {
+      font-size: var(--font-size-sm);
+      color: #856404;
+      margin: 0 0 var(--spacing-md) 0;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .cancel-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .manage-info {
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .info-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0;
+      line-height: var(--line-height-relaxed);
+    }
+
+    @media (max-width: 640px) {
+      .cancel-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+}
+

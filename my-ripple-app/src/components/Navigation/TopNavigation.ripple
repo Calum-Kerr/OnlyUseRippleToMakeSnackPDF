@@ -1,0 +1,266 @@
+import { track } from 'ripple';
+import { useRouter, useCurrentRoute } from '../../utils/router';
+import { debounce } from '../../utils/helpers';
+import { getBreadcrumbs } from '../../utils/routes';
+
+export component TopNavigation() {
+  const router = useRouter();
+  const currentRoute = useCurrentRoute();
+  
+  let searchQuery = track('');
+  let showFilters = track(false);
+
+  // Debounced search handler
+  const handleSearch = debounce((query: string) => {
+    console.log('Searching for:', query);
+    // TODO: Implement search functionality
+  }, 300);
+
+  const onSearchInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    @searchQuery = target.value;
+    handleSearch(target.value);
+  };
+
+  const toggleFilters = () => {
+    @showFilters = !@showFilters;
+  };
+
+  const requestFeature = () => {
+    // TODO: Open feature request modal or navigate to feature request page
+    console.log('Request feature clicked');
+  };
+
+  const navigateTo = (path: string) => {
+    router.navigate(path);
+  };
+
+  <nav class="top-nav">
+    <div class="top-nav-content">
+      <div class="breadcrumb">
+        const breadcrumbs = getBreadcrumbs(@currentRoute);
+
+        for (const crumb of breadcrumbs; index i) {
+          if (i > 0) {
+            <span class="breadcrumb-separator">{'>'}</span>
+          }
+
+          if (i === breadcrumbs.length - 1) {
+            <span class="breadcrumb-current">{crumb.label}</span>
+          } else {
+            <a
+              class="breadcrumb-link"
+              onClick={() => navigateTo(crumb.path)}
+            >
+              {crumb.label}
+            </a>
+          }
+        }
+      </div>
+
+      <div class="top-nav-actions">
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search PDF tools..."
+            value={@searchQuery}
+            onInput={onSearchInput}
+          />
+          <span class="search-icon">{'🔍'}</span>
+        </div>
+
+        <button 
+          class={@showFilters ? 'btn-filters active' : 'btn-filters'}
+          onClick={toggleFilters}
+        >
+          <span class="filter-icon">{'⚙️'}</span>
+          {'Filters'}
+        </button>
+
+        <button class="btn-feature" onClick={requestFeature}>
+          <span class="feature-icon">{'💡'}</span>
+          {'Request Feature'}
+        </button>
+      </div>
+    </div>
+
+    if (@showFilters) {
+      <div class="filters-panel">
+        <p>{'Filter options coming soon...'}</p>
+      </div>
+    }
+  </nav>
+
+  <style>
+    .top-nav {
+      position: sticky;
+      top: 0;
+      left: var(--nav-left-width);
+      right: 0;
+      height: var(--nav-top-height);
+      background-color: var(--color-bg-primary);
+      border-bottom: 1px solid var(--color-border-light);
+      z-index: var(--z-sticky);
+    }
+
+    .top-nav-content {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--spacing-xl);
+      gap: var(--spacing-xl);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-size-sm);
+      flex-shrink: 0;
+    }
+
+    .breadcrumb-link {
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .breadcrumb-link:hover {
+      color: var(--brand-green);
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-text-tertiary);
+      user-select: none;
+    }
+
+    .breadcrumb-current {
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .top-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .search-container {
+      position: relative;
+      max-width: 400px;
+      flex: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      padding-left: 2.5rem;
+      border: 1px solid var(--color-border-medium);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--brand-green);
+      box-shadow: 0 0 0 3px rgba(35, 130, 135, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: var(--spacing-md);
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .btn-filters,
+    .btn-feature {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--color-border-medium);
+      border-radius: var(--radius-md);
+      background-color: var(--brand-white);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn-filters:hover,
+    .btn-feature:hover {
+      background-color: var(--color-bg-secondary);
+      border-color: var(--brand-green);
+    }
+
+    .btn-filters.active {
+      background-color: var(--brand-green);
+      color: var(--brand-white);
+      border-color: var(--brand-green);
+    }
+
+    .btn-feature {
+      background-color: var(--brand-green);
+      color: var(--brand-white);
+      border-color: var(--brand-green);
+    }
+
+    .btn-feature:hover {
+      background-color: var(--color-button-primary-hover);
+    }
+
+    .filter-icon,
+    .feature-icon {
+      font-size: var(--font-size-base);
+    }
+
+    .filters-panel {
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--color-border-light);
+      background-color: var(--color-bg-secondary);
+    }
+
+    .filters-panel p {
+      margin: 0;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+    }
+
+    @media (max-width: 768px) {
+      .top-nav-content {
+        padding: 0 var(--spacing-md);
+        gap: var(--spacing-md);
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+
+      .search-container {
+        max-width: 200px;
+      }
+
+      .btn-filters span,
+      .btn-feature span {
+        display: none;
+      }
+
+      .filter-icon,
+      .feature-icon {
+        margin: 0;
+      }
+    }
+  </style>
+}
+

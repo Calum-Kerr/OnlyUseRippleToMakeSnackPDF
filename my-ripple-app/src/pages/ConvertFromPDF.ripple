@@ -1,0 +1,122 @@
+export component ConvertFromPDF() {
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">{'Convert from PDF'}</h1>
+      <p class="page-description">
+        {'Extract content from PDFs and convert them to other formats.'}
+      </p>
+    </div>
+
+    <div class="coming-soon-card">
+      <div class="coming-soon-icon">{'🚧'}</div>
+      <h2 class="coming-soon-title">{'Coming Soon'}</h2>
+      <p class="coming-soon-text">
+        {'We\'re developing tools to help you extract and convert PDF content to various formats.'}
+      </p>
+      <div class="planned-features">
+        <h3 class="features-title">{'Export Formats:'}</h3>
+        <ul class="features-list">
+          <li>{'Word documents (.docx)'}</li>
+          <li>{'Excel spreadsheets (.xlsx)'}</li>
+          <li>{'PowerPoint presentations (.pptx)'}</li>
+          <li>{'Images (.jpg, .png)'}</li>
+          <li>{'Text files (.txt)'}</li>
+          <li>{'HTML files'}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .page-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .page-title {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .page-description {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    .coming-soon-card {
+      background-color: var(--brand-white);
+      border: 2px dashed var(--color-border-medium);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-3xl);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .coming-soon-icon {
+      font-size: 4rem;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .coming-soon-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--spacing-md) 0;
+    }
+
+    .coming-soon-text {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin: 0 0 var(--spacing-xl) 0;
+      line-height: var(--line-height-relaxed);
+    }
+
+    .planned-features {
+      max-width: 500px;
+      margin: 0 auto;
+      padding-top: var(--spacing-xl);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .features-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--spacing-md) 0;
+    }
+
+    .features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      text-align: left;
+    }
+
+    .features-list li {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      padding-left: var(--spacing-md);
+      position: relative;
+    }
+
+    .features-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--brand-green);
+      font-weight: var(--font-weight-bold);
+    }
+  </style>
+}
+

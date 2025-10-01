@@ -1,0 +1,219 @@
+import { useRouter } from '../../utils/router';
+
+export component Footer() {
+  const router = useRouter();
+
+  const navigateTo = (path: string) => {
+    router.navigate(path);
+  };
+
+  const openLinkedIn = () => {
+    window.open('https://www.linkedin.com', '_blank', 'noopener,noreferrer');
+  };
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section footer-brand">
+        <div class="footer-logo">
+          <span class="logo-snack">{'Snack'}</span>
+          <span class="logo-pdf">{'PDF'}</span>
+        </div>
+        <p class="footer-description">
+          {'Your locally hosted one-stop-shop for all your PDF needs.'}
+        </p>
+        <p class="footer-journey">
+          {'Started this PDF website journey on 13th May 2024, constantly restarting, learning from failures and mistakes, trying new UI and UX approaches.'}
+        </p>
+      </div>
+
+      <div class="footer-section">
+        <h3 class="footer-heading">{'Legal'}</h3>
+        <ul class="footer-links">
+          <li>
+            <a onClick={() => navigateTo('/privacy-policy')}>
+              {'Privacy Policy'}
+            </a>
+          </li>
+          <li>
+            <a onClick={() => navigateTo('/terms-conditions')}>
+              {'Terms & Conditions'}
+            </a>
+          </li>
+          <li>
+            <a onClick={() => navigateTo('/cookie-policy')}>
+              {'Cookie Policy'}
+            </a>
+          </li>
+          <li>
+            <a onClick={() => navigateTo('/data-protection')}>
+              {'Data Protection'}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3 class="footer-heading">{'Connect'}</h3>
+        <ul class="footer-links">
+          <li>
+            <a onClick={openLinkedIn}>
+              {'LinkedIn'}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copyright">
+        {'© 2025 SnackPDF. All rights reserved.'}
+      </p>
+      <p class="footer-location">
+        {'Based in Edinburgh, Scotland, United Kingdom'}
+      </p>
+    </div>
+  </footer>
+
+  <style>
+    .footer {
+      background-color: var(--footer-bg);
+      color: var(--brand-white);
+      padding: var(--spacing-2xl) 0 var(--spacing-xl);
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--spacing-xl);
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: var(--spacing-2xl);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .footer-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .footer-brand {
+      max-width: 500px;
+    }
+
+    .footer-logo {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .logo-snack {
+      color: var(--brand-white);
+    }
+
+    .logo-pdf {
+      color: var(--brand-green);
+    }
+
+    .footer-description {
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-relaxed);
+      margin-bottom: var(--spacing-md);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .footer-journey {
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-relaxed);
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+    }
+
+    .footer-heading {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+      color: var(--brand-white);
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .footer-links li {
+      margin: 0;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: var(--brand-green);
+      text-decoration: underline;
+    }
+
+    .footer-bottom {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--spacing-lg) var(--spacing-xl) 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+
+    .footer-copyright,
+    .footer-location {
+      font-size: var(--font-size-sm);
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .footer-content {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .footer {
+        padding: var(--spacing-xl) 0 var(--spacing-md);
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        padding: 0 var(--spacing-md);
+        gap: var(--spacing-xl);
+      }
+
+      .footer-brand {
+        grid-column: 1;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: var(--spacing-md) var(--spacing-md) 0;
+      }
+    }
+  </style>
+}
+

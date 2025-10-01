@@ -1,0 +1,154 @@
+import { track } from 'ripple';
+import type { Component } from 'ripple';
+// @ts-expect-error: Ripple component import
+import { LeftNavigation } from '../Navigation/LeftNavigation.ripple';
+// @ts-expect-error: Ripple component import
+import { TopNavigation } from '../Navigation/TopNavigation.ripple';
+// @ts-expect-error: Ripple component import
+import { Footer } from './Footer.ripple';
+
+export component MainLayout(props: { children: Component }) {
+  let mobileMenuOpen = track(false);
+
+  const toggleMobileMenu = () => {
+    @mobileMenuOpen = !@mobileMenuOpen;
+  };
+
+  const closeMobileMenu = () => {
+    @mobileMenuOpen = false;
+  };
+
+  <div class="main-layout">
+    <button
+      class="mobile-menu-toggle"
+      onClick={toggleMobileMenu}
+      aria-label="Toggle menu"
+    >
+      if (@mobileMenuOpen) {
+        <span class="menu-icon">{'✕'}</span>
+      } else {
+        <span class="menu-icon">{'☰'}</span>
+      }
+    </button>
+
+    if (@mobileMenuOpen) {
+      <div class="mobile-menu-overlay" onClick={closeMobileMenu}></div>
+    }
+
+    <div class={@mobileMenuOpen ? 'left-nav-container open' : 'left-nav-container'}>
+      <LeftNavigation />
+    </div>
+
+    <div class="main-wrapper">
+      <TopNavigation />
+
+      <main class="main-content">
+        <props.children />
+      </main>
+
+      <Footer />
+    </div>
+  </div>
+
+  <style>
+    .main-layout {
+      display: flex;
+      min-height: 100vh;
+      background-color: var(--color-bg-primary);
+      position: relative;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: var(--spacing-md);
+      left: var(--spacing-md);
+      z-index: 1001;
+      width: 48px;
+      height: 48px;
+      background-color: var(--brand-green);
+      color: var(--brand-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .mobile-menu-toggle:hover {
+      background-color: var(--color-button-primary-hover);
+      transform: scale(1.05);
+    }
+
+    .menu-icon {
+      font-size: var(--font-size-2xl);
+      line-height: 1;
+    }
+
+    .mobile-menu-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .left-nav-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--nav-left-width);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: var(--spacing-xl);
+      max-width: 100%;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .mobile-menu-overlay {
+        display: block;
+      }
+
+      .left-nav-container {
+        transform: translateX(-100%);
+        transition: transform var(--transition-normal);
+        box-shadow: var(--shadow-xl);
+      }
+
+      .left-nav-container.open {
+        transform: translateX(0);
+        z-index: 1000;
+      }
+
+      .main-wrapper {
+        margin-left: 0;
+      }
+
+      .main-content {
+        padding: var(--spacing-md);
+        padding-top: calc(var(--spacing-md) + 64px);
+      }
+    }
+  </style>
+}
+

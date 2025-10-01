@@ -1,0 +1,291 @@
+import { track } from 'ripple';
+import { supabase } from '../../utils/supabase';
+import { validateEmail, handleApiError } from '../../utils/helpers';
+import { useRouter } from '../../utils/router';
+
+export component SignIn() {
+  const router = useRouter();
+  
+  let email = track('');
+  let password = track('');
+  let isLoading = track(false);
+  let error = track<string | null>(null);
+  let emailError = track<string | null>(null);
+
+  const validateForm = (): boolean => {
+    @emailError = null;
+    @error = null;
+
+    if (!@email) {
+      @emailError = 'Email is required';
+      return false;
+    }
+
+    if (!validateEmail(@email)) {
+      @emailError = 'Please enter a valid email address';
+      return false;
+    }
+
+    if (!@password) {
+      @error = 'Password is required';
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSignIn = async (e: Event) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    @isLoading = true;
+    @error = null;
+
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: @email,
+        password: @password,
+      });
+
+      if (signInError) {
+        @error = handleApiError(signInError);
+        return;
+      }
+
+      if (data.user) {
+        // Redirect to dashboard on successful sign in
+        router.navigate('/');
+      }
+    } catch (err) {
+      @error = handleApiError(err);
+    } finally {
+      @isLoading = false;
+    }
+  };
+
+  const goToSignUp = () => {
+    router.navigate('/auth/signup');
+  };
+
+  const goToForgotPassword = () => {
+    router.navigate('/auth/forgot-password');
+  };
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1 class="auth-title">{'Sign in to SnackPDF'}</h1>
+        <p class="auth-subtitle">{'Welcome back! Please enter your details.'}</p>
+      </div>
+
+      <form class="auth-form" onSubmit={handleSignIn}>
+        if (@error) {
+          <div class="alert alert-error">
+            {@error}
+          </div>
+        }
+
+        <div class="form-group">
+          <label class="form-label" for="email">{'Email'}</label>
+          <input
+            id="email"
+            type="email"
+            class={@emailError ? 'form-input error' : 'form-input'}
+            placeholder="you@example.com"
+            value={@email}
+            onInput={(e: Event) => @email = (e.target as HTMLInputElement).value}
+            disabled={@isLoading}
+          />
+          if (@emailError) {
+            <span class="form-error">{@emailError}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">{'Password'}</label>
+          <input
+            id="password"
+            type="password"
+            class="form-input"
+            placeholder="Enter your password"
+            value={@password}
+            onInput={(e: Event) => @password = (e.target as HTMLInputElement).value}
+            disabled={@isLoading}
+          />
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="link-button"
+            onClick={goToForgotPassword}
+            disabled={@isLoading}
+          >
+            {'Forgot password?'}
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-full"
+          disabled={@isLoading}
+        >
+          if (@isLoading) {
+            <span class="spinner"></span>
+            {'Signing in...'}
+          } else {
+            {'Sign in'}
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p class="auth-footer-text">
+          {'Don\'t have an account? '}
+          <button class="link-button" onClick={goToSignUp}>
+            {'Sign up'}
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-lg);
+      background-color: var(--color-bg-secondary);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--brand-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: var(--spacing-2xl);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .auth-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .auth-subtitle {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    .alert {
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+    }
+
+    .alert-error {
+      background-color: #fee;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+
+    .form-label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .form-input {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--color-border-medium);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-base);
+      transition: all var(--transition-fast);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--brand-green);
+      box-shadow: 0 0 0 3px rgba(35, 130, 135, 0.1);
+    }
+
+    .form-input.error {
+      border-color: var(--color-error);
+    }
+
+    .form-input:disabled {
+      background-color: var(--color-bg-tertiary);
+      cursor: not-allowed;
+    }
+
+    .form-error {
+      font-size: var(--font-size-xs);
+      color: var(--color-error);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .link-button {
+      background: none;
+      border: none;
+      color: var(--brand-green);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .link-button:hover {
+      color: var(--color-link-hover);
+    }
+
+    .link-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .auth-footer {
+      margin-top: var(--spacing-xl);
+      text-align: center;
+    }
+
+    .auth-footer-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+  </style>
+}
+

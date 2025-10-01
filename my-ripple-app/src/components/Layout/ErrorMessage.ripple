@@ -1,0 +1,61 @@
+export component ErrorMessage(props: { 
+  title?: string; 
+  message: string; 
+  onRetry?: () => void;
+  showIcon?: boolean;
+}) {
+  const title = props.title || 'Something went wrong';
+  const showIcon = props.showIcon !== false;
+
+  <div class="error-container">
+    if (showIcon) {
+      <div class="error-icon">{'⚠️'}</div>
+    }
+    
+    <h3 class="error-title">{title}</h3>
+    <p class="error-message">{props.message}</p>
+    
+    if (props.onRetry) {
+      <button class="btn btn-primary" onClick={props.onRetry}>
+        {'Try again'}
+      </button>
+    }
+  </div>
+
+  <style>
+    .error-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-2xl);
+      text-align: center;
+      background-color: #fff5f5;
+      border: 1px solid #feb2b2;
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .error-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .error-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-error);
+      margin: 0;
+    }
+
+    .error-message {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin: 0;
+      line-height: var(--line-height-relaxed);
+    }
+  </style>
+}
+

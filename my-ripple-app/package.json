@@ -1,0 +1,31 @@
+{
+	"name": "snackpdf",
+	"version": "1.0.0",
+	"description": "SnackPDF - PDF manipulation web application",
+	"engines": {
+		"node": ">=22.0.0"
+	},
+	"scripts": {
+		"start": "node server.js",
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite preview",
+		"heroku-postbuild": "pnpm build",
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"prettier": "^3.6.2",
+		"prettier-plugin-ripple": "^0.2.29",
+		"typescript": "^5.9.2",
+		"vite": "^7.1.4",
+		"vite-plugin-ripple": "^0.2.29"
+	},
+	"dependencies": {
+		"@stripe/stripe-js": "^8.0.0",
+		"@supabase/supabase-js": "^2.58.0",
+		"express": "^4.21.2",
+		"ripple": "^0.2.29"
+	}
+}

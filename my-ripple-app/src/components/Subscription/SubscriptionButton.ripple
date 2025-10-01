@@ -1,0 +1,122 @@
+import { track } from 'ripple';
+import { getStripe, getStripePriceId } from '../../utils/stripe';
+import { useAuth } from '../../utils/auth.context';
+import { handleApiError } from '../../utils/helpers';
+
+export component SubscriptionButton() {
+  const auth = useAuth();
+  
+  let isLoading = track(false);
+  let error = track<string | null>(null);
+
+  const handleSubscribe = async () => {
+    @error = null;
+    @isLoading = true;
+
+    try {
+      // Check if user is authenticated
+      if (!@auth.isAuthenticated || !@auth.user) {
+        @error = 'Please sign in to subscribe';
+        return;
+      }
+
+      // Get Stripe instance
+      const stripe = await getStripe();
+      if (!stripe) {
+        @error = 'Stripe is not available. Please check your configuration.';
+        return;
+      }
+
+      // Get price ID
+      const priceId = getStripePriceId();
+      if (!priceId) {
+        @error = 'Subscription product is not configured.';
+        return;
+      }
+
+      // TODO: Call your backend/serverless function to create checkout session
+      // For now, this is a placeholder showing what needs to be implemented
+      
+      // Example of what the backend call would look like:
+      // const response = await fetch('/api/create-checkout-session', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     priceId,
+      //     userId: @auth.user.id,
+      //     userEmail: @auth.user.email,
+      //   }),
+      // });
+      // const { sessionId } = await response.json();
+      // await stripe.redirectToCheckout({ sessionId });
+
+      @error = 'Checkout functionality requires a backend endpoint. Please see STRIPE_SETUP.md for implementation details.';
+      
+    } catch (err) {
+      @error = handleApiError(err);
+    } finally {
+      @isLoading = false;
+    }
+  };
+
+  <div class="subscription-button-container">
+    if (@error) {
+      <div class="alert alert-error">
+        {@error}
+      </div>
+    }
+
+    <button
+      class="btn btn-primary btn-subscribe"
+      onClick={handleSubscribe}
+      disabled={@isLoading || !@auth.isAuthenticated}
+    >
+      if (@isLoading) {
+        <span class="spinner"></span>
+        {'Processing...'}
+      } else {
+        {'Subscribe for £1/month'}
+      }
+    </button>
+
+    <p class="subscription-info">
+      {'Unlock unlimited PDF file size uploads'}
+    </p>
+  </div>
+
+  <style>
+    .subscription-button-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+
+    .alert {
+      width: 100%;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+    }
+
+    .alert-error {
+      background-color: #fee;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
+    }
+
+    .btn-subscribe {
+      min-width: 200px;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .subscription-info {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0;
+      text-align: center;
+    }
+  </style>
+}
+

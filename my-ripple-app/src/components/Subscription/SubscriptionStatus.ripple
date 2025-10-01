@@ -1,0 +1,269 @@
+import { useSubscription } from '../../utils/subscription.context';
+import { formatDate } from '../../utils/helpers';
+
+export component SubscriptionStatus() {
+  const subscription = useSubscription();
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+      case 'trialing':
+        return 'status-badge status-active';
+      case 'past_due':
+        return 'status-badge status-warning';
+      case 'canceled':
+      case 'unpaid':
+        return 'status-badge status-inactive';
+      default:
+        return 'status-badge';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'Active';
+      case 'trialing':
+        return 'Trial';
+      case 'past_due':
+        return 'Past Due';
+      case 'canceled':
+        return 'Cancelled';
+      case 'unpaid':
+        return 'Unpaid';
+      default:
+        return status;
+    }
+  };
+
+  if (@subscription.isLoading) {
+    <div class="subscription-status-container">
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>{'Loading subscription status...'}</p>
+      </div>
+    </div>
+  } else if (@subscription.error) {
+    <div class="subscription-status-container">
+      <div class="alert alert-error">
+        {@subscription.error}
+      </div>
+    </div>
+  } else if (@subscription.isSubscribed && @subscription.subscription) {
+    const sub = @subscription.subscription;
+    
+    <div class="subscription-status-container">
+      <div class="status-card">
+        <div class="status-header">
+          <h3 class="status-title">{'SnackPDF Pro'}</h3>
+          <span class={getStatusBadge(sub.status)}>
+            {getStatusText(sub.status)}
+          </span>
+        </div>
+
+        <div class="status-details">
+          <div class="status-item">
+            <span class="status-label">{'Plan:'}</span>
+            <span class="status-value">{'£1.00/month'}</span>
+          </div>
+
+          <div class="status-item">
+            <span class="status-label">{'Current period ends:'}</span>
+            <span class="status-value">
+              {formatDate(sub.current_period_end)}
+            </span>
+          </div>
+
+          if (sub.cancel_at_period_end) {
+            <div class="status-item">
+              <span class="status-warning-text">
+                {'Your subscription will be cancelled at the end of the current period.'}
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="status-benefits">
+          <h4 class="benefits-title">{'Your benefits:'}</h4>
+          <ul class="benefits-list">
+            <li>{'✓ Unlimited PDF file size uploads'}</li>
+            <li>{'✓ All PDF manipulation tools'}</li>
+            <li>{'✓ Priority support'}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  } else {
+    <div class="subscription-status-container">
+      <div class="status-card status-free">
+        <div class="status-header">
+          <h3 class="status-title">{'Free Plan'}</h3>
+          <span class="status-badge status-inactive">{'Free'}</span>
+        </div>
+
+        <div class="status-details">
+          <div class="status-item">
+            <span class="status-label">{'File size limit:'}</span>
+            <span class="status-value">{'1 MB'}</span>
+          </div>
+        </div>
+
+        <div class="upgrade-prompt">
+          <p class="upgrade-text">
+            {'Upgrade to SnackPDF Pro for unlimited file size uploads'}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <style>
+    .subscription-status-container {
+      width: 100%;
+    }
+
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-xl);
+      color: var(--color-text-secondary);
+    }
+
+    .alert {
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+    }
+
+    .alert-error {
+      background-color: #fee;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
+    }
+
+    .status-card {
+      background-color: var(--brand-white);
+      border: 1px solid var(--color-border-medium);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .status-card.status-free {
+      border-color: var(--color-border-light);
+    }
+
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .status-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    .status-badge {
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-inactive {
+      background-color: #f8f9fa;
+      color: var(--color-text-tertiary);
+    }
+
+    .status-details {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .status-value {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .status-warning-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-warning);
+      font-style: italic;
+    }
+
+    .status-benefits {
+      margin-top: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .benefits-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .benefits-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+
+    .benefits-list li {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .upgrade-prompt {
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-md);
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .upgrade-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+  </style>
+}
+

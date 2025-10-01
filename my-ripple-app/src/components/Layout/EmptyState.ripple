@@ -1,0 +1,61 @@
+export component EmptyState(props: { 
+  icon?: string;
+  title: string; 
+  message: string; 
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  const icon = props.icon || '📭';
+
+  <div class="empty-state-container">
+    <div class="empty-state-icon">{icon}</div>
+    
+    <h3 class="empty-state-title">{props.title}</h3>
+    <p class="empty-state-message">{props.message}</p>
+    
+    if (props.onAction && props.actionLabel) {
+      <button class="btn btn-primary" onClick={props.onAction}>
+        {props.actionLabel}
+      </button>
+    }
+  </div>
+
+  <style>
+    .empty-state-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-3xl);
+      text-align: center;
+      background-color: var(--color-bg-secondary);
+      border: 2px dashed var(--color-border-medium);
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      line-height: 1;
+      opacity: 0.8;
+    }
+
+    .empty-state-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    .empty-state-message {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin: 0;
+      line-height: var(--line-height-relaxed);
+      max-width: 400px;
+    }
+  </style>
+}
+

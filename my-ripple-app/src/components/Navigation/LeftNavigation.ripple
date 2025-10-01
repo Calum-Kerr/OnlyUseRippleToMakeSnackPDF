@@ -1,0 +1,358 @@
+import { track } from 'ripple';
+import { useRouter } from '../../utils/router';
+import { useAuth } from '../../utils/auth.context';
+import { getInitials } from '../../utils/helpers';
+
+export component LeftNavigation() {
+  const router = useRouter();
+  const auth = useAuth();
+  
+  // Track which sections are expanded
+  let expandedSections = track({
+    organise: true,
+    convertTo: false,
+    convertFrom: false,
+    sign: false,
+    view: false,
+    advanced: false,
+  });
+
+  const toggleSection = (section: string) => {
+    @expandedSections = {
+      ...@expandedSections,
+      [section]: !@expandedSections[section],
+    };
+  };
+
+  const navigateTo = (path: string) => {
+    router.navigate(path);
+  };
+
+  const isActive = (path: string) => {
+    return router.isActive(path);
+  };
+
+  <nav class="left-nav">
+    <div class="nav-header">
+      <div class="logo" onClick={() => navigateTo('/')}>
+        <span class="logo-snack">{'Snack'}</span>
+        <span class="logo-pdf">{'PDF'}</span>
+      </div>
+    </div>
+
+    <div class="nav-content">
+      <div class="nav-section">
+        <button 
+          class="section-header"
+          onClick={() => toggleSection('organise')}
+        >
+          <span class="section-icon">{'📁'}</span>
+          <span class="section-title">{'Organise'}</span>
+          <span class={@expandedSections.organise ? 'chevron expanded' : 'chevron'}>{'›'}</span>
+        </button>
+        
+        if (@expandedSections.organise) {
+          <div class="section-items">
+            <a 
+              class={isActive('/organise') ? 'nav-item active' : 'nav-item'}
+              onClick={() => navigateTo('/organise')}
+            >
+              {'Organise PDF'}
+            </a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button 
+          class="section-header"
+          onClick={() => toggleSection('convertTo')}
+        >
+          <span class="section-icon">{'📄'}</span>
+          <span class="section-title">{'Convert to PDF'}</span>
+          <span class={@expandedSections.convertTo ? 'chevron expanded' : 'chevron'}>{'›'}</span>
+        </button>
+        
+        if (@expandedSections.convertTo) {
+          <div class="section-items">
+            <a 
+              class={isActive('/convert-to-pdf') ? 'nav-item active' : 'nav-item'}
+              onClick={() => navigateTo('/convert-to-pdf')}
+            >
+              {'Convert to PDF'}
+            </a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button 
+          class="section-header"
+          onClick={() => toggleSection('convertFrom')}
+        >
+          <span class="section-icon">{'🔄'}</span>
+          <span class="section-title">{'Convert from PDF'}</span>
+          <span class={@expandedSections.convertFrom ? 'chevron expanded' : 'chevron'}>{'›'}</span>
+        </button>
+        
+        if (@expandedSections.convertFrom) {
+          <div class="section-items">
+            <a 
+              class={isActive('/convert-from-pdf') ? 'nav-item active' : 'nav-item'}
+              onClick={() => navigateTo('/convert-from-pdf')}
+            >
+              {'Convert from PDF'}
+            </a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button 
+          class="section-header"
+          onClick={() => toggleSection('sign')}
+        >
+          <span class="section-icon">{'🔒'}</span>
+          <span class="section-title">{'Sign and Security'}</span>
+          <span class={@expandedSections.sign ? 'chevron expanded' : 'chevron'}>{'›'}</span>
+        </button>
+        
+        if (@expandedSections.sign) {
+          <div class="section-items">
+            <a 
+              class={isActive('/sign-security') ? 'nav-item active' : 'nav-item'}
+              onClick={() => navigateTo('/sign-security')}
+            >
+              {'Sign and Security'}
+            </a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button 
+          class="section-header"
+          onClick={() => toggleSection('view')}
+        >
+          <span class="section-icon">{'👁️'}</span>
+          <span class="section-title">{'View and Edit'}</span>
+          <span class={@expandedSections.view ? 'chevron expanded' : 'chevron'}>{'›'}</span>
+        </button>
+        
+        if (@expandedSections.view) {
+          <div class="section-items">
+            <a 
+              class={isActive('/view-edit') ? 'nav-item active' : 'nav-item'}
+              onClick={() => navigateTo('/view-edit')}
+            >
+              {'View and Edit'}
+            </a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-section">
+        <button 
+          class="section-header"
+          onClick={() => toggleSection('advanced')}
+        >
+          <span class="section-icon">{'⚙️'}</span>
+          <span class="section-title">{'Advanced'}</span>
+          <span class={@expandedSections.advanced ? 'chevron expanded' : 'chevron'}>{'›'}</span>
+        </button>
+        
+        if (@expandedSections.advanced) {
+          <div class="section-items">
+            <a 
+              class={isActive('/advanced') ? 'nav-item active' : 'nav-item'}
+              onClick={() => navigateTo('/advanced')}
+            >
+              {'Advanced Tools'}
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="nav-footer">
+      if (@auth.user) {
+        <div class="user-profile">
+          <div class="user-avatar">
+            {getInitials(@auth.user.name || @auth.user.email)}
+          </div>
+          <div class="user-info">
+            <div class="user-name">{@auth.user.name || 'User Name'}</div>
+            <div class="user-email">{@auth.user.email}</div>
+          </div>
+        </div>
+      } else {
+        <div class="user-profile">
+          <div class="user-avatar">{'U'}</div>
+          <div class="user-info">
+            <div class="user-name">{'User Name'}</div>
+            <div class="user-email">{'user@example.com'}</div>
+          </div>
+        </div>
+      }
+    </div>
+  </nav>
+
+  <style>
+    .left-nav {
+      width: var(--nav-left-width);
+      height: 100vh;
+      background-color: var(--color-bg-primary);
+      border-right: 1px solid var(--color-border-light);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: var(--z-fixed);
+    }
+
+    .nav-header {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .logo {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo-snack {
+      color: var(--brand-white);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-pdf {
+      color: var(--brand-green);
+    }
+
+    .nav-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-md) 0;
+    }
+
+    .nav-section {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .section-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      transition: background-color var(--transition-fast);
+      text-align: left;
+    }
+
+    .section-header:hover {
+      background-color: var(--color-bg-secondary);
+    }
+
+    .section-icon {
+      font-size: var(--font-size-lg);
+    }
+
+    .section-title {
+      flex: 1;
+    }
+
+    .chevron {
+      transition: transform var(--transition-fast);
+      font-size: var(--font-size-xl);
+      line-height: 1;
+    }
+
+    .chevron.expanded {
+      transform: rotate(90deg);
+    }
+
+    .section-items {
+      padding-left: var(--spacing-2xl);
+    }
+
+    .nav-item {
+      display: block;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border-left: 2px solid transparent;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-secondary);
+    }
+
+    .nav-item.active {
+      color: var(--brand-green);
+      border-left-color: var(--brand-green);
+      background-color: rgba(35, 130, 135, 0.05);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .nav-footer {
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--brand-green), #1a6569);
+      color: var(--brand-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-sm);
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-email {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+}
+
