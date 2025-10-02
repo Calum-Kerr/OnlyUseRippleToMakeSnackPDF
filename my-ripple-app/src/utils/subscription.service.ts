@@ -16,16 +16,22 @@ export function initSubscription() {
   effect(() => {
     const user = authCtx.user;
     const isAuthenticated = authCtx.isAuthenticated;
+    const isLoading = authCtx.isLoading;
 
-    if (isAuthenticated && user) {
+    // Wait for auth to finish loading before fetching subscription
+    if (isLoading.value) {
+      return;
+    }
+
+    if (isAuthenticated.value && user.value && user.value.id) {
       // User is authenticated, fetch their subscription
-      fetchSubscription(user.id);
+      fetchSubscription(user.value.id);
     } else {
       // User is not authenticated, clear subscription
-      subscriptionCtx.subscription = null;
-      subscriptionCtx.isSubscribed = false;
-      subscriptionCtx.isLoading = false;
-      subscriptionCtx.error = null;
+      subscriptionCtx.subscription.value = null;
+      subscriptionCtx.isSubscribed.value = false;
+      subscriptionCtx.isLoading.value = false;
+      subscriptionCtx.error.value = null;
     }
   });
 }
@@ -35,9 +41,9 @@ export function initSubscription() {
  */
 async function fetchSubscription(userId: string) {
   const subscriptionCtx = SubscriptionContext.get();
-  
-  subscriptionCtx.isLoading = true;
-  subscriptionCtx.error = null;
+
+  subscriptionCtx.isLoading.value = true;
+  subscriptionCtx.error.value = null;
 
   try {
     const { data, error } = await supabase
@@ -49,8 +55,8 @@ async function fetchSubscription(userId: string) {
     if (error) {
       // No subscription found is not an error
       if (error.code === 'PGRST116') {
-        subscriptionCtx.subscription = null;
-        subscriptionCtx.isSubscribed = false;
+        subscriptionCtx.subscription.value = null;
+        subscriptionCtx.isSubscribed.value = false;
       } else {
         throw error;
       }
@@ -67,14 +73,14 @@ async function fetchSubscription(userId: string) {
         updatedAt: data.updated_at,
       };
 
-      subscriptionCtx.subscription = subscription;
-      subscriptionCtx.isSubscribed = isSubscriptionActive(subscription);
+      subscriptionCtx.subscription.value = subscription;
+      subscriptionCtx.isSubscribed.value = isSubscriptionActive(subscription);
     }
   } catch (err) {
     console.error('Error fetching subscription:', err);
-    subscriptionCtx.error = 'Failed to load subscription status';
+    subscriptionCtx.error.value = 'Failed to load subscription status';
   } finally {
-    subscriptionCtx.isLoading = false;
+    subscriptionCtx.isLoading.value = false;
   }
 }
 
